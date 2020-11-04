@@ -23,7 +23,14 @@ def current_comic():
 def get_comic_by_id(comic_id):
     return comic_by_id(comic_id), 200
 
-
+ 
+@app.route('/comics/many/')
+def query_com():
+    all_comics = []
+    for comic_id in request.args.to_dict(flat=False).get("comic_ids"):
+        all_comics.append(comic_by_id(comic_id))
+    return jsonify(all_comics)
+       
 def comic_by_id(comic_id):
     with urllib.request.urlopen(f"http://xkcd.com/{comic_id}/info.0.json") as url:
         data = json.loads(url.read().decode())
