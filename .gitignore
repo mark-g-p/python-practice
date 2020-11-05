@@ -1,3 +1,5 @@
+# Scripts
+*.sh
 # IDE files
 .vscode/
 # Byte-compiled / optimized / DLL files
