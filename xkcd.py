@@ -5,8 +5,8 @@ import os
 
 app = Flask(__name__)
 
-PORT =  5000 if os.environ.get('FLASK_PORT') is None else os.environ.get('FLASK_PORT')
-HOST = '127.0.0.1' if os.environ.get('FLASK_HOST') is None else os.environ.get('FLASK_Host')
+PORT =  5000 if not isinstance(os.environ.get('FLASK_PORT'), int) else os.environ.get('FLASK_PORT')
+HOST = '127.0.0.1' if os.environ.get('FLASK_HOST') is None else os.environ.get('FLASK_HOST')
 
 @app.route('/comics/current', methods=['GET'])
 def current_comic():
@@ -21,10 +21,13 @@ def comic_by_id(comic_id):
  
 @app.route('/comics/many', methods=['GET'])
 def many_comics():
-    # we are assuming we don't want repetition and don't care about order of comics
+    # we are assuming we don't want repetition and comics are sorted from smallest to largest id 
     comics_ids = set(request.args.to_dict(flat=False).get("comic_ids"))
-    return jsonify( [comic_by_url(create_url_from_id(comic_id)) for comic_id in comics_ids] )
-       
+    if all(id.isdigit() for id in comics_ids):
+        comics_ids = sorted(map(int, comics_ids))
+        return jsonify( [comic_by_url(create_url_from_id(comic_id)) for comic_id in comics_ids] )
+    else:
+        abort(400)       
 
 @app.route('/comics/<string:_>')
 def wrong_url(_):
